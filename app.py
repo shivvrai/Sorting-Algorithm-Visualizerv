@@ -1,5 +1,5 @@
 """
-ULTIMATE SORTING ALGORITHM VISUALIZER - BACKEND
+SORTING ALGORITHM VISUALIZER - BACKEND
 Save as: app.py
 
 Enhanced with:
@@ -12,7 +12,8 @@ Enhanced with:
 """
 
 from fastapi import FastAPI, Request, HTTPException, Body
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any
 import time
@@ -39,6 +40,19 @@ async def index():
     else:
         return HTMLResponse(content="<h1>Please create index.html in the same directory</h1>")
 
+@app.get("/styles.css")
+async def serve_css():
+    css_path = Path(__file__).parent / "styles.css"
+    if css_path.exists():
+        return FileResponse(css_path, media_type="text/css")
+    raise HTTPException(status_code=404, detail="styles.css not found")
+
+@app.get("/script.js")
+async def serve_js():
+    js_path = Path(__file__).parent / "script.js"
+    if js_path.exists():
+        return FileResponse(js_path, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="script.js not found")
 
 # ============================================================
 # SORTING ALGORITHMS
@@ -1149,6 +1163,18 @@ async def time_trial(payload: dict = Body(...)):
         
         array = [int(x) for x in array]
         algorithms = ["bubble", "selection", "insertion", "merge", "quick", "heap", "counting"]
+        
+        # Space complexity mapping (Big-O notation)
+        space_complexity = {
+            "bubble": "O(1)",
+            "selection": "O(1)",
+            "insertion": "O(1)",
+            "merge": "O(n)",
+            "quick": "O(log n)",
+            "heap": "O(1)",
+            "counting": "O(k)"
+        }
+        
         results = []
         
         for algo in algorithms:
@@ -1179,7 +1205,8 @@ async def time_trial(payload: dict = Body(...)):
                     "execution_time_us": round(execution_time_us, 2),
                     "comparisons": final_step.get("total_comparisons", 0),
                     "swaps": final_step.get("total_swaps", 0),
-                    "total_steps": len(steps)
+                    "total_steps": len(steps),
+                    "space_complexity": space_complexity[algo]  # ✅ Add space complexity
                 })
                 
             except Exception as e:
