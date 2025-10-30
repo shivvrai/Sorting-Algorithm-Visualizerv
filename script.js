@@ -164,63 +164,84 @@ document.getElementById('runTrialBtn').addEventListener('click', () => this.runT
     }
 
     async loadAlgorithmInfo(algorithm) {
-        try {
-            const response = await fetch(`${this.apiUrl}/api/algorithm-info/${algorithm}`);
-            const data = await response.json();
-            
-           
-            document.getElementById('algoDescription').textContent = data.description;
-            document.getElementById('timeBest').textContent = data.time_complexity.best;
-            document.getElementById('timeAvg').textContent = data.time_complexity.average;
-            document.getElementById('timeWorst').textContent = data.time_complexity.worst;
-            document.getElementById('spaceComplexity').textContent = data.space_complexity;
-            
-            document.getElementById('algoProperties').innerHTML = `
-                <span class="property-badge">${data.stable ? 'Stable' : 'Unstable'}</span>
-                <span class="property-badge">${data.in_place ? 'In-place' : 'Not in-place'}</span>
-            `;
-            
-            document.getElementById('algoHowItWorks').textContent = data.how_it_works;
-            document.getElementById('realWorldUses').innerHTML = data.real_world_uses.map(use => `<li>${use}</li>`).join('');
-            document.getElementById('whenToUse').innerHTML = data.when_to_use.map(item => `<li>${item}</li>`).join('');
-            document.getElementById('advantages').innerHTML = data.advantages.map(adv => `<li>${adv}</li>`).join('');
-            document.getElementById('disadvantages').innerHTML = data.disadvantages.map(dis => `<li>${dis}</li>`).join('');
-            document.getElementById('whenNotToUse').innerHTML = data.when_not_to_use.map(item => `<li>${item}</li>`).join('');
-            
-           
-            const codeResponse = await fetch(`${this.apiUrl}/api/algorithm-code/${algorithm}`);
-            const codeData = await codeResponse.json();
-            document.getElementById('algoCode').textContent = codeData.code;
-            document.getElementById('algoCodeExplanation').textContent = codeData.explanation;
-            
-        } catch (error) {
-            console.error('Error loading algorithm info:', error);
+    try {
+        const response = await fetch(`${this.apiUrl}/api/algorithm-info/${algorithm}`);
+        const data = await response.json();
+        
+        // Update education tab content
+        document.getElementById('algoDescription').textContent = data.description;
+        document.getElementById('timeBest').textContent = data.time_complexity.best;
+        document.getElementById('timeAvg').textContent = data.time_complexity.average;
+        document.getElementById('timeWorst').textContent = data.time_complexity.worst;
+        document.getElementById('spaceComplexity').textContent = data.space_complexity;
+        
+        document.getElementById('algoProperties').innerHTML = `
+            <span class="property-badge">${data.stable ? 'Stable' : 'Unstable'}</span>
+            <span class="property-badge">${data.in_place ? 'In-place' : 'Not in-place'}</span>
+        `;
+        
+        document.getElementById('algoHowItWorks').textContent = data.how_it_works;
+        document.getElementById('realWorldUses').innerHTML = data.real_world_uses.map(use => `<li>${use}</li>`).join('');
+        document.getElementById('whenToUse').innerHTML = data.when_to_use.map(item => `<li>${item}</li>`).join('');
+        document.getElementById('advantages').innerHTML = data.advantages.map(adv => `<li>${adv}</li>`).join('');
+        document.getElementById('disadvantages').innerHTML = data.disadvantages.map(dis => `<li>${dis}</li>`).join('');
+        document.getElementById('whenNotToUse').innerHTML = data.when_not_to_use.map(item => `<li>${item}</li>`).join('');
+        
+        // ✅ CORRECT: Declare variables INSIDE the function with proper indentation
+        const algorithmName = algorithm.charAt(0).toUpperCase() + algorithm.slice(1);
+        const algorithmQuery = algorithmName + ' Sort';
+        
+        const dynamicLinks = [
+            {
+                title: `${algorithmQuery} - GeeksforGeeks`,
+                url: `https://www.geeksforgeeks.org/${algorithm}-sort/`,
+                icon: 'fab fa-google'
+            },
+            {
+                title: `${algorithmQuery} Tutorial - YouTube`,
+                url: `https://www.youtube.com/results?search_query=${encodeURIComponent(algorithmQuery + ' algorithm tutorial')}`,
+                icon: 'fab fa-youtube'
+            },
+            {
+                title: `Visualize ${algorithmQuery} - VisuAlgo`,
+                url: `https://visualgo.net/en/sorting?slide=1`,
+                icon: 'fas fa-chart-bar'
+            },
+            {
+                title: `${algorithmQuery} - Wikipedia`,
+                url: `https://en.wikipedia.org/wiki/${algorithmName}_sort`,
+                icon: 'fab fa-wikipedia-w'
+            }
+        ];
+        
+        // Render dynamic links
+        const linksContainer = document.getElementById('algoLinks');
+        if (linksContainer) {
+            linksContainer.innerHTML = dynamicLinks.map(link => `
+                <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="external-link">
+                    <i class="${link.icon}"></i> ${link.title}
+                </a>
+            `).join('');
         }
+        
+        // Load code
+        const codeResponse = await fetch(`${this.apiUrl}/api/algorithm-code/${algorithm}`);
+        const codeData = await codeResponse.json();
+        document.getElementById('algoCode').textContent = codeData.code;
+        document.getElementById('algoCodeExplanation').textContent = codeData.explanation;
+        
+    } catch (error) {
+        console.error('Error loading algorithm info:', error);
     }
+}
+
 
     async start() {
-    if (this.isRunning && !this.isPaused) return;
-    
-   
-    if (this.isPaused && this.allSteps.length > 0) {
-        this.isPaused = false;
-        this.isRunning = true;
-        document.getElementById('startBtn').disabled = true;
-        document.getElementById('pauseBtn').disabled = false;
-        document.getElementById('stepBackBtn').disabled = true;
-        document.getElementById('stepForwardBtn').disabled = true;
-        
-        
-        await this.continueVisualization();
-        return;
-    }
+    if (this.isRunning) return;
     
     this.isRunning = true;
-    this.isPaused = false;
     document.getElementById('startBtn').disabled = true;
     document.getElementById('pauseBtn').disabled = false;
-    document.getElementById('stepBackBtn').disabled = true;
-    document.getElementById('stepForwardBtn').disabled = true;
     
     try {
         const response = await fetch(`${this.apiUrl}/api/sort`, {
@@ -236,26 +257,57 @@ document.getElementById('runTrialBtn').addEventListener('click', () => this.runT
         
         const data = await response.json();
         
+        // Visualize steps
+        for (let i = 0; i < data.steps.length && this.isRunning; i++) {
+            const step = data.steps[i];
+            this.currentArray = step.array;
+            
+            const highlightClass = step.type === 'comparing' ? 'comparing' :
+                                 step.type === 'swapping' ? 'swapping' :
+                                 step.type === 'sorted' ? 'sorted' : 'pivot';
+            
+            this.renderBars(step.indices, highlightClass);
+            document.getElementById('stepDescription').textContent = step.description;
+            
+            this.updateStats(
+                this.currentArray.length,
+                i + 1,
+                data.total_comparisons,
+                data.total_swaps
+            );
+            
+            const progress = ((i + 1) / data.steps.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            await this.sleep(100 / this.speed);
+        }
         
-        this.allSteps = data.steps;
-        this.currentStepIndex = 0;
-        
-        // Start visualization
-        await this.continueVisualization();
+        // Only show completion message if NOT paused
+        if (this.isRunning) {
+            const sortedIndices = Array.from({length: this.currentArray.length}, (_, i) => i);
+            this.renderBars(sortedIndices, 'sorted');
+            document.getElementById('stepDescription').textContent = 'Sorting completed!';
+        }
+        // If paused, the step description remains unchanged
         
     } catch (error) {
         console.error('Error during sorting:', error);
         alert('Error: ' + error.message);
-        this.isRunning = false;
-        document.getElementById('startBtn').disabled = false;
-        document.getElementById('pauseBtn').disabled = true;
     }
+    
+    this.isRunning = false;
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('pauseBtn').disabled = true;
 }
+
+
 async continueVisualization() {
     const totalSteps = this.allSteps.length;
     
-    for (let i = this.currentStepIndex; i < totalSteps && this.isRunning; i++) {
-        if (this.isPaused) {
+    // ✅ Ensure we're actually animating
+    for (let i = this.currentStepIndex; i < totalSteps; i++) {
+        // Check if paused or stopped
+        if (this.isPaused || !this.isRunning) {
             this.currentStepIndex = i;
             return;
         }
@@ -263,90 +315,73 @@ async continueVisualization() {
         const step = this.allSteps[i];
         this.currentArray = step.array;
         
+        // Determine highlight class
         const highlightClass = step.type === 'comparing' ? 'comparing' :
-                             step.type === 'swapping' ? 'swapping' :
-                             step.type === 'sorted' ? 'sorted' : 'pivot';
+                       step.type === 'swapping' ? 'swapping' :
+                       step.type === 'sorted' ? 'sorted' :
+                       step.type === 'pivot' ? 'pivot' :
+                       step.type === 'done' ? 'sorted' : '';
+
         
-        this.renderBars(step.indices, highlightClass);
-        document.getElementById('stepDescription').textContent = step.description;
+        // ✅ Render bars with animation
+        this.renderBars(step.indices || [], highlightClass);
+        document.getElementById('stepDescription').textContent = step.description || 'Sorting...';
         
         // Get final stats from last step
         const finalStep = this.allSteps[totalSteps - 1];
         this.updateStats(
-            this.currentArray.length,
-            i + 1,
-            finalStep.total_comparisons || 0,
-            finalStep.total_swaps || 0
-        );
+    this.currentArray.length,
+    i + 1,
+    step.total_comparisons || finalStep.total_comparisons || 0,
+    step.total_swaps || finalStep.total_swaps || 0
+);
+
         
+        // Update progress bar
         const progress = ((i + 1) / totalSteps) * 100;
         document.getElementById('progressBar').style.width = progress + '%';
         
         this.currentStepIndex = i;
+        
+        // ✅ Wait based on speed (100ms base / speed multiplier)
         await this.sleep(100 / this.speed);
     }
     
-    // Finished
+    // ✅ After completion - show all bars as sorted
+    const sortedIndices = Array.from({length: this.currentArray.length}, (_, i) => i);
+    this.renderBars(sortedIndices, 'sorted');
+    document.getElementById('stepDescription').textContent = `${this.currentAlgorithm.charAt(0).toUpperCase() + this.currentAlgorithm.slice(1)} sort completed!`;
+    
+    // ✅ Reset state
     this.isRunning = false;
     this.isPaused = false;
-    document.getElementById('startBtn').disabled = false;
-    document.getElementById('pauseBtn').disabled = true;
-    document.getElementById('stepBackBtn').disabled = true;
-    document.getElementById('stepForwardBtn').disabled = true;
-}
-
-
-    pause() {
-    console.log('Pause clicked - enabling step buttons');
-    this.isPaused = true;
-    this.isRunning = false;
-    
-    // Update pause/start buttons
-    document.getElementById('pauseBtn').disabled = true;
-    document.getElementById('startBtn').disabled = false;
-    document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Continue';
-    
-    //  Enable step buttons with multiple methods
-    const stepBackBtn = document.getElementById('stepBackBtn');
-    const stepForwardBtn = document.getElementById('stepForwardBtn');
-    
-    if (stepBackBtn) {
-        stepBackBtn.disabled = false;
-        stepBackBtn.removeAttribute('disabled');
-        stepBackBtn.classList.remove('disabled');
-        console.log('Step back button enabled:', !stepBackBtn.disabled);
-    } else {
-        console.error('stepBackBtn element NOT FOUND');
-    }
-    
-    if (stepForwardBtn) {
-        stepForwardBtn.disabled = false;
-        stepForwardBtn.removeAttribute('disabled');
-        stepForwardBtn.classList.remove('disabled');
-        console.log('Step forward button enabled:', !stepForwardBtn.disabled);
-    } else {
-        console.error('stepForwardBtn element NOT FOUND');
-    }
-}
-
-
-
-
-    reset() {
-    this.isRunning = false;
-    this.isPaused = false;
-    this.allSteps = [];
-    this.currentStepIndex = 0;
-    
-    this.generateArray('random');
     document.getElementById('startBtn').disabled = false;
     document.getElementById('startBtn').innerHTML = '<i class="fas fa-play"></i> Start';
     document.getElementById('pauseBtn').disabled = true;
     document.getElementById('stepBackBtn').disabled = true;
     document.getElementById('stepForwardBtn').disabled = true;
+}
+
+
+
+    pause() {
+    this.isRunning = false;
+    document.getElementById('pauseBtn').disabled = true;
+}
+
+
+
+
+
+   reset() {
+    this.isRunning = false;
+    this.generateArray('random');
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('pauseBtn').disabled = true;
     document.getElementById('progressBar').style.width = '0%';
     document.getElementById('stepDescription').textContent = 'Ready to visualize! Click Start to begin sorting.';
 }
+
 stepBackward() {
     if (!this.isPaused || this.currentStepIndex <= 0) return;
     
