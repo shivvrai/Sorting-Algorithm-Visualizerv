@@ -427,25 +427,120 @@ body {
     font-size: 0.875rem;
 }
 
+/* ✅ Enhanced Learning Resources Section */
 .resource-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.resource-link,
+.external-link {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.resource-link {
-    padding: 0.75rem;
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    text-decoration: none;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     color: var(--text-primary);
-    transition: all 0.3s ease;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
-.resource-link:hover {
-    background: var(--accent-blue);
-    color: white;
+.resource-link::before,
+.external-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
 }
+
+.resource-link:hover::before,
+.external-link:hover::before {
+    left: 100%;
+}
+
+.resource-link:hover,
+.external-link:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-blue);
+}
+
+.resource-link i,
+.external-link i {
+    font-size: 1.4rem;
+    min-width: 28px;
+    transition: transform 0.3s ease;
+}
+
+/* Icon colors for different platforms */
+.resource-link:nth-child(1) i,
+.external-link .fa-google {
+    color: #4285F4; /* Google Blue */
+}
+
+.resource-link:nth-child(2) i,
+.external-link .fa-youtube {
+    color: #FF0000; /* YouTube Red */
+}
+
+.resource-link:nth-child(3) i,
+.external-link .fa-chart-bar {
+    color: #00C853; /* VisuAlgo Green */
+}
+
+.resource-link:nth-child(4) i,
+.external-link .fa-wikipedia-w {
+    color: #000000; /* Wikipedia Black */
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+    .resource-link:nth-child(4) i,
+    .external-link .fa-wikipedia-w {
+        color: #FFFFFF;
+    }
+}
+
+.resource-link:hover i,
+.external-link:hover i {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Active state */
+.resource-link:active,
+.external-link:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Focus state for accessibility */
+.resource-link:focus-visible,
+.external-link:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 3px;
+}
+
+/* Learning Resources heading style */
+h3[style*="margin-top"] {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
 
 @media (max-width: 768px) {
     .header h1 {
