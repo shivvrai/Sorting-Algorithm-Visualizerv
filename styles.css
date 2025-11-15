@@ -427,7 +427,6 @@ body {
     font-size: 0.875rem;
 }
 
-/* ✅ Enhanced Learning Resources Section */
 .resource-links {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -484,28 +483,28 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* Icon colors for different platforms */
+
 .resource-link:nth-child(1) i,
 .external-link .fa-google {
-    color: #4285F4; /* Google Blue */
+    color: #4285F4; 
 }
 
 .resource-link:nth-child(2) i,
 .external-link .fa-youtube {
-    color: #FF0000; /* YouTube Red */
+    color: #FF0000; 
 }
 
 .resource-link:nth-child(3) i,
 .external-link .fa-chart-bar {
-    color: #00C853; /* VisuAlgo Green */
+    color: #00C853; 
 }
 
 .resource-link:nth-child(4) i,
 .external-link .fa-wikipedia-w {
-    color: #000000; /* Wikipedia Black */
+    color: #000000; 
 }
 
-/* Dark mode adjustments */
+
 @media (prefers-color-scheme: dark) {
     .resource-link:nth-child(4) i,
     .external-link .fa-wikipedia-w {
@@ -518,20 +517,18 @@ body {
     transform: scale(1.15) rotate(5deg);
 }
 
-/* Active state */
 .resource-link:active,
 .external-link:active {
     transform: translateY(0) scale(0.98);
 }
 
-/* Focus state for accessibility */
 .resource-link:focus-visible,
 .external-link:focus-visible {
     outline: 2px solid var(--accent-blue);
     outline-offset: 3px;
 }
 
-/* Learning Resources heading style */
+
 h3[style*="margin-top"] {
     display: flex;
     align-items: center;
@@ -696,4 +693,5 @@ h3[style*="margin-top"] {
 [id$="Mode"].hidden {
     opacity: 0;
 }
+
 
